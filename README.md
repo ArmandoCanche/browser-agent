@@ -79,4 +79,4 @@ What Microsoft Azure courses are available?
 
 ## Author
 
-Armando Tintore - [LinkedIn](https://linkedin.com/in/Armando-Tintore)
+Armando Tintore - [LinkedIn](https://www.linkedin.com/in/jorge-armando-canche-tintore-199aa321b/)
