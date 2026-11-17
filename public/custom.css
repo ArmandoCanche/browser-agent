@@ -1,0 +1,150 @@
+/* ================================================
+   DeepBrowse AI — Refined CSS v3
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap');
+
+/* --- Base typography --- */
+body,
+.markdown-body,
+textarea,
+button {
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* --- Header name --- */
+header span,
+header p {
+    font-family: 'Space Mono', monospace !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* ================================================
+   MARKDOWN — headings
+   ================================================ */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+    font-family: 'Space Mono', monospace !important;
+    letter-spacing: 0.02em !important;
+}
+
+.markdown-body h1 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.markdown-body h2 {
+    font-size: 1.05rem !important;
+}
+
+.markdown-body h3 {
+    font-size: 0.95rem !important;
+    opacity: 0.85 !important;
+}
+
+/* ================================================
+   MARKDOWN — inline elements
+   ================================================ */
+
+/* Bold text takes the accent blue */
+.markdown-body strong {
+    color: #4A9EFF !important;
+    font-weight: 600 !important;
+}
+
+/* Links */
+.markdown-body a {
+    color: #4A9EFF !important;
+    text-decoration-color: rgba(74, 158, 255, 0.35) !important;
+    text-underline-offset: 3px !important;
+}
+
+/* Inline code */
+.markdown-body code {
+    color: #00D4AA !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.83em !important;
+}
+
+/* Code block */
+.markdown-body pre {
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.83rem !important;
+}
+
+/* Blockquote */
+.markdown-body blockquote {
+    border-left-color: #4A9EFF !important;
+    font-style: italic !important;
+    opacity: 0.9 !important;
+}
+
+/* Horizontal rule — subtle */
+.markdown-body hr {
+    opacity: 0.2 !important;
+}
+
+/* ================================================
+   WELCOME PANEL (chainlit.md card)
+   ================================================ */
+
+/* The card that wraps the welcome message */
+[class*="WelcomeScreen"],
+[class*="welcome-screen"] {
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* First h1 in the welcome card — make it stand out */
+[class*="WelcomeScreen"] .markdown-body h1,
+[class*="welcome"] .markdown-body h1 {
+    font-size: 1.4rem !important;
+    font-family: 'Space Mono', monospace !important;
+    color: #4A9EFF !important;
+    border-bottom: 1px solid rgba(74, 158, 255, 0.2) !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 16px !important;
+}
+
+/* Body text in welcome slightly larger for readability */
+[class*="WelcomeScreen"] .markdown-body p,
+[class*="welcome"] .markdown-body p {
+    font-size: 0.95rem !important;
+    line-height: 1.75 !important;
+}
+
+/* Code blocks in welcome (the usage examples) */
+[class*="WelcomeScreen"] .markdown-body pre,
+[class*="welcome"] .markdown-body pre {
+    font-size: 0.82rem !important;
+    border-radius: 10px !important;
+}
+
+/* ================================================
+   ASSISTANT MESSAGE — subtle left accent
+   ================================================ */
+.step {
+    border-left: 2px solid rgba(74, 158, 255, 0.3) !important;
+    padding-left: 10px !important;
+    margin-left: 4px !important;
+}
+
+/* ================================================
+   SCROLLBAR
+   ================================================ */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 99px;
+    background: rgba(74, 158, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 158, 255, 0.5);
+}

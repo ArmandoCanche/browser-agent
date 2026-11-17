@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeepBrowse AI — Architecture</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f5f5f3;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 40px 16px;
+      }
+
+      .canvas {
+        width: 100%;
+        max-width: 640px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+
+      .entry {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        border: 0.5px solid #c8c7bf;
+        border-radius: 40px;
+        padding: 10px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1a1a18;
+      }
+      .entry-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #639922;
+      }
+
+      .connector {
+        width: 1px;
+        background: #c8c7bf;
+        margin: 0 auto;
+      }
+      .connector-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .connector-text {
+        font-size: 10px;
+        color: #888780;
+        background: #f5f5f3;
+        padding: 0 6px;
+        border-radius: 4px;
+        position: relative;
+        z-index: 1;
+        margin: -1px 0;
+      }
+
+      .level {
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #d3d1c7;
+        background: #fff;
+      }
+      .level-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        border-bottom: 0.5px solid #d3d1c7;
+      }
+      .level-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: #1a1a18;
+      }
+      .level-badge {
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+      }
+
+      .level-scrape {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 18px;
+        border-bottom: 0.5px solid #d3d1c7;
+        background: #fafaf8;
+      }
+      .scrape-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .scrape-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .scrape-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #1a1a18;
+      }
+      .scrape-sub {
+        font-size: 11px;
+        color: #73726c;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .action {
+        padding: 14px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        border-right: 0.5px solid #d3d1c7;
+        background: #fff;
+      }
+      .action:last-child {
+        border-right: none;
+      }
+      .action-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2px;
+      }
+      .action-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #1a1a18;
+      }
+      .action-sub {
+        font-size: 11px;
+        color: #73726c;
+        line-height: 1.4;
+      }
+      .action.disabled {
+        opacity: 0.35;
+      }
+
+      .nav-pill {
+        font-size: 10px;
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 20px;
+        color: #73726c;
+        border: 0.5px solid #c8c7bf;
+        background: #f5f5f3;
+        white-space: nowrap;
+        margin: 0 auto;
+      }
+
+      .end {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        border: 0.5px solid #c8c7bf;
+        border-radius: 40px;
+        padding: 10px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #73726c;
+      }
+      .end-sq {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: #888780;
+      }
+
+      /* ── Level 1 green ── */
+      .l1 .level {
+        border-color: #97c459;
+      }
+      .l1 .level-header {
+        background: #eaf3de;
+      }
+      .l1 .level-badge {
+        background: #c0dd97;
+        color: #27500a;
+      }
+      .l1 .scrape-icon {
+        background: #c0dd97;
+      }
+      .l1 .icon-scrape svg {
+        stroke: #3b6d11;
+      }
+
+      /* ── Level 2 blue ── */
+      .l2 .level {
+        border-color: #85b7eb;
+      }
+      .l2 .level-header {
+        background: #e6f1fb;
+      }
+      .l2 .level-badge {
+        background: #b5d4f4;
+        color: #0c447c;
+      }
+      .l2 .scrape-icon {
+        background: #b5d4f4;
+      }
+      .l2 .icon-scrape svg {
+        stroke: #185fa5;
+      }
+
+      /* ── Level 3 coral ── */
+      .l3 .level {
+        border-color: #f0997b;
+      }
+      .l3 .level-header {
+        background: #faece7;
+      }
+      .l3 .level-badge {
+        background: #f5c4b3;
+        color: #712b13;
+      }
+      .l3 .scrape-icon {
+        background: #f5c4b3;
+      }
+      .l3 .icon-scrape svg {
+        stroke: #993c1d;
+      }
+
+      /* ── Action icon colors ── */
+      .icon-q {
+        background: #eeedfe;
+      }
+      .icon-q svg {
+        stroke: #534ab7;
+      }
+      .icon-c {
+        background: #faeeda;
+      }
+      .icon-c svg {
+        stroke: #854f0b;
+      }
+      .icon-n {
+        background: #e1f5ee;
+      }
+      .icon-n svg {
+        stroke: #0f6e56;
+      }
+      .icon-x {
+        background: #f1efe8;
+      }
+      .icon-x svg {
+        stroke: #888780;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="entry">
+        <div class="entry-dot"></div>
+        User enters a URL
+      </div>
+
+      <div class="connector-label">
+        <div class="connector" style="height: 24px"></div>
+        <div class="connector-text">scrape</div>
+        <div class="connector" style="height: 24px"></div>
+      </div>
+
+      <!-- NIVEL 1 -->
+      <div class="l1" style="width: 100%">
+        <div class="level">
+          <div class="level-header">
+            <span class="level-title">Level 1 — Homepage</span>
+            <span class="level-badge">depth = 0</span>
+          </div>
+          <div class="level-scrape">
+            <div class="scrape-icon icon-scrape">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="#3B6D11"
+                stroke-width="1.5"
+              >
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 4v4l3 2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="scrape-text">
+              <span class="scrape-title"
+                >Selenium scrape → BeautifulSoup → link classifier</span
+              >
+              <span class="scrape-sub"
+                >extractor.py · cleans HTML · sorts links · returns
+                clean_text</span
+              >
+            </div>
+          </div>
+          <div class="level-scrape" style="border-top: none">
+            <div class="scrape-icon" style="background: #eaf3de">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="#3B6D11"
+                stroke-width="1.5"
+              >
+                <rect x="2" y="3" width="12" height="10" rx="2" />
+                <path
+                  d="M5 7h6M5 10h4"
+                  stroke-linecap="round"
+                  stroke-width="1.2"
+                />
+              </svg>
+            </div>
+            <div class="scrape-text">
+              <span class="scrape-title">Analysis with llama-3.3-70b</span>
+              <span class="scrape-sub"
+                >llm.py · summary + numbered link list to user</span
+              >
+            </div>
+          </div>
+          <div class="actions">
+            <div class="action">
+              <div class="action-icon icon-q">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <circle cx="8" cy="8" r="6" />
+                  <path d="M8 10V8M8 6h.01" stroke-linecap="round" />
+                </svg>
+              </div>
+              <span class="action-title">Ask</span>
+              <span class="action-sub"
+                >70b answers from current page context</span
+              >
+            </div>
+            <div class="action">
+              <div class="action-icon icon-c">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M4 8h8M10 5l3 3-3 3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <span class="action-title">Compare</span>
+              <span class="action-sub"
+                >scrape another URL · comparison with 70b</span
+              >
+            </div>
+            <div class="action">
+              <div class="action-icon icon-n">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M8 3v10M4 9l4 4 4-4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <span class="action-title">Navigate</span>
+              <span class="action-sub">8b picks link · goes to level 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="connector-label"
+        style="
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          padding-right: 80px;
+        "
+      >
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <div class="connector" style="height: 16px"></div>
+          <div class="nav-pill">navigate → next level</div>
+          <div class="connector" style="height: 16px"></div>
+        </div>
+      </div>
+
+      <!-- NIVEL 2 -->
+      <div class="l2" style="width: 100%">
+        <div class="level">
+          <div class="level-header">
+            <span class="level-title">Level 2 — Category</span>
+            <span class="level-badge">depth = 1</span>
+          </div>
+          <div class="level-scrape">
+            <div class="scrape-icon icon-scrape">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="#185FA5"
+                stroke-width="1.5"
+              >
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 4v4l3 2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="scrape-text">
+              <span class="scrape-title"
+                >Selenium scrape → BeautifulSoup → link classifier</span
+              >
+              <span class="scrape-sub"
+                >extractor.py · same logic · category links already
+                filtered</span
+              >
+            </div>
+          </div>
+          <div class="level-scrape" style="border-top: none">
+            <div class="scrape-icon" style="background: #e6f1fb">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="#185FA5"
+                stroke-width="1.5"
+              >
+                <rect x="2" y="3" width="12" height="10" rx="2" />
+                <path
+                  d="M5 7h6M5 10h4"
+                  stroke-linecap="round"
+                  stroke-width="1.2"
+                />
+              </svg>
+            </div>
+            <div class="scrape-text">
+              <span class="scrape-title">Analysis with llama-3.3-70b</span>
+              <span class="scrape-sub"
+                >llm.py · lists all courses in the category</span
+              >
+            </div>
+          </div>
+          <div class="actions">
+            <div class="action">
+              <div class="action-icon icon-q">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <circle cx="8" cy="8" r="6" />
+                  <path d="M8 10V8M8 6h.01" stroke-linecap="round" />
+                </svg>
+              </div>
+              <span class="action-title">Ask</span>
+              <span class="action-sub"
+                >70b answers from current page context</span
+              >
+            </div>
+            <div class="action">
+              <div class="action-icon icon-c">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M4 8h8M10 5l3 3-3 3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <span class="action-title">Compare</span>
+              <span class="action-sub"
+                >scrape another URL · comparison with 70b</span
+              >
+            </div>
+            <div class="action">
+              <div class="action-icon icon-n">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M8 3v10M4 9l4 4 4-4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <span class="action-title">Navigate</span>
+              <span class="action-sub">8b picks link · goes to level 3</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="connector-label"
+        style="
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          padding-right: 80px;
+        "
+      >
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <div class="connector" style="height: 16px"></div>
+          <div class="nav-pill">navigate → next level</div>
+          <div class="connector" style="height: 16px"></div>
+        </div>
+      </div>
+
+      <!-- NIVEL 3 -->
+      <div class="l3" style="width: 100%">
+        <div class="level">
+          <div class="level-header">
+            <span class="level-title">Level 3 — Course</span>
+            <span class="level-badge">depth = 2 · maximum</span>
+          </div>
+          <div class="level-scrape">
+            <div class="scrape-icon icon-scrape">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="#993C1D"
+                stroke-width="1.5"
+              >
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 4v4l3 2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="scrape-text">
+              <span class="scrape-title"
+                >Selenium scrape → BeautifulSoup → link classifier</span
+              >
+              <span class="scrape-sub"
+                >extractor.py · extracts full course content</span
+              >
+            </div>
+          </div>
+          <div class="level-scrape" style="border-top: none">
+            <div class="scrape-icon" style="background: #faece7">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="#993C1D"
+                stroke-width="1.5"
+              >
+                <rect x="2" y="3" width="12" height="10" rx="2" />
+                <path
+                  d="M5 7h6M5 10h4"
+                  stroke-linecap="round"
+                  stroke-width="1.2"
+                />
+              </svg>
+            </div>
+            <div class="scrape-text">
+              <span class="scrape-title">Analysis with llama-3.3-70b</span>
+              <span class="scrape-sub"
+                >llm.py · price · syllabus · dates · prerequisites ·
+                certification</span
+              >
+            </div>
+          </div>
+          <div class="actions">
+            <div class="action">
+              <div class="action-icon icon-q">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <circle cx="8" cy="8" r="6" />
+                  <path d="M8 10V8M8 6h.01" stroke-linecap="round" />
+                </svg>
+              </div>
+              <span class="action-title">Ask</span>
+              <span class="action-sub"
+                >70b answers from current page context</span
+              >
+            </div>
+            <div class="action">
+              <div class="action-icon icon-c">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M4 8h8M10 5l3 3-3 3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <span class="action-title">Compare</span>
+              <span class="action-sub"
+                >scrape another URL · comparison with 70b</span
+              >
+            </div>
+            <div class="action disabled">
+              <div class="action-icon icon-x">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="#888780"
+                  stroke-width="1.5"
+                >
+                  <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+                </svg>
+              </div>
+              <span class="action-title">Navigate</span>
+              <span class="action-sub">maximum depth reached</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector" style="height: 28px"></div>
+
+      <div class="end">
+        <div class="end-sq"></div>
+        End of session
+      </div>
+    </div>
+  </body>
+</html>
